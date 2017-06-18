@@ -1,0 +1,11 @@
+.DS_Store
+.vimrc
+.cache
+tags
+.tox
+*.swp
+*.pyc
+.eggs
+*.egg-info/
+_builds/
+_logs/
