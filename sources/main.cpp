@@ -10,12 +10,22 @@ int main(int argc, char* argv[]) {
     using ns_cryptor::decrypt_file;
     using ns_cryptor::encrypt_directory;
     using ns_cryptor::decrypt_directory;
+    using ns_cryptor::wipe_file;
+    using ns_cryptor::wipe_directory;
     namespace po = boost::program_options;
     namespace fs = boost::filesystem;
     fs::path output_dir = fs::current_path();
+    bool debug = false;
 
     po::options_description description("Allowed options");
     description.add_options()
+
+//#ifndef NDEBUG
+        ("debug",
+            po::bool_switch(&debug)
+            ->default_value(false), "mode")
+//#endif
+
         ("help,h", "show this message")
 
         ("encrypt,e",
@@ -67,6 +77,15 @@ int main(int argc, char* argv[]) {
                 if (fs::exists(path)) {
                     if (fs::is_regular(path)) decrypt_file(path); else
                     if (fs::is_directory(path)) decrypt_directory(path);
+                }
+            }
+        }
+
+        if (vm.count("wipe")) {
+            for (auto const& path: vm["wipe"].as<std::vector<fs::path>>()) {
+                if (fs::exists(path)) {
+                    if (fs::is_regular(path)) wipe_file(path, debug); else
+                    if (fs::is_directory(path)) wipe_directory(path, debug);
                 }
             }
         }

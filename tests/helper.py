@@ -7,7 +7,7 @@ import string
 
 def generate_data():
     symbols = string.ascii_uppercase + string.ascii_lowercase + string.digits
-    size = random.randint(0, 100)
+    size = random.randint(1, 100)
     data = ''.join(random.choice(symbols) for _ in range(size))
     return data
 

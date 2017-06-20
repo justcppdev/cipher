@@ -10,8 +10,8 @@ namespace ns_cryptor {
     void decrypt_file(fs::path const& path);
     void encrypt_directory(fs::path const& path);
     void decrypt_directory(fs::path const& path);
-    void wipe_file(fs::path const& path);
-    void wipe_directory(fs::path const& path);
+    void wipe_file(fs::path const& path, bool debug = false);
+    void wipe_directory(fs::path const& path, bool debug = false);
 }
 
 #endif
