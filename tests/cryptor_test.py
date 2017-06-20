@@ -16,7 +16,8 @@ class TestCryptor(object):
             subprocess.check_call(
                 [PATH['cryptor'], '-e', tempfile_path,
                  '-o', os.path.dirname(tempfile_path)])
-            assert(filecmp.cmp(tempfile_path, encrypted_path) is False)
+            assert(filecmp.cmp(tempfile_path, encrypted_path, shallow=False)
+                   is False)
         finally:
             os.remove(encrypted_path)
 
@@ -32,7 +33,8 @@ class TestCryptor(object):
             subprocess.check_call(
                 [PATH['cryptor'], '-d', encrypted_path,
                  '-o', os.path.dirname(tempfile_path)])
-            assert(filecmp.cmp(tempfile_path, decrypted_path) is False)
+            assert(filecmp.cmp(tempfile_path, decrypted_path, shallow=False)
+                   is True)
         finally:
             os.remove(encrypted_path)
             os.remove(decrypted_path)

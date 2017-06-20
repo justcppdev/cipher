@@ -42,7 +42,11 @@ int main(int argc, char* argv[]) {
         }
 
         if (vm.count("decrypt")) {
-            for (auto const& source_path: vm["decrypt"].as<std::vector<fs::path>>()) {
+            for (auto const& path: vm["decrypt"].as<std::vector<fs::path>>()) {
+                if (fs::exists(path)) {
+                    if (fs::is_regular(path)) decrypt_file(path); else
+                    if (fs::is_directory(path)) decrypt_directory(path);
+                }
             }
         }
 
