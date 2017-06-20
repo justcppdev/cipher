@@ -3,6 +3,7 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <vector>
+#include <string>
 
 int main(int argc, char* argv[]) {
     using ns_cryptor::encrypt_file;
@@ -16,12 +17,26 @@ int main(int argc, char* argv[]) {
     po::options_description description("Allowed options");
     description.add_options()
         ("help,h", "show this message")
-        ("sync,s", "sync with output directory")
 
-        ("encrypt,e", po::value<std::vector<fs::path>>(), "")
-        ("decrypt,d", po::value<std::vector<fs::path>>(), "")
+        ("encrypt,e",
+            po::value<std::vector<fs::path>>()
+            ->value_name("path"), "file or directory")
 
-        ("output,o", po::value<fs::path>(&output_dir), "output directory")
+        ("decrypt,d",
+            po::value<std::vector<fs::path>>()
+            ->value_name("path"), "file or directory")
+
+        ("wipe,w",
+            po::value<std::vector<fs::path>>()
+            ->value_name("path"), "file or directory")
+
+        ("sync,s",
+            po::value<std::vector<fs::path>>()
+            ->value_name("path"), "file or directory with output directory")
+
+        ("output,o",
+            po::value<fs::path>(&output_dir)
+            ->value_name("path"), "output directory")
     ;
 
     try {
@@ -30,7 +45,13 @@ int main(int argc, char* argv[]) {
         po::notify(vm);
 
         if (fs::exists(output_dir) == false)
-            throw "output directory doesn't exist";
+            throw std::string(output_dir.c_str()) +=
+                " doesn't exist";
+
+        if (vm.count("help")) {
+            std::cout << description << std::endl;
+            return 0;
+        }
 
         if (vm.count("encrypt")) {
             for (auto const& path: vm["encrypt"].as<std::vector<fs::path>>()) {
@@ -52,6 +73,8 @@ int main(int argc, char* argv[]) {
 
     } catch (po::error const& e) {
         std::cout << e.what() << std::endl;
+    } catch (std::string const& e) {
+        std::cout << e << std::endl;
     } catch (char const* e) {
         std::cout << e << std::endl;
     }
