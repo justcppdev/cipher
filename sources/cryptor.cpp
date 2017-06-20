@@ -17,7 +17,7 @@ namespace ns_cryptor {
         std::ifstream ifile(path.c_str(), ifile.binary);
         assert(ifile);
         io::filtering_streambuf<io::input> in;
-        in.push(io::gzip_compressor()); // !!!
+        in.push(io::gzip_compressor());
         in.push(ifile);
         fs::path encrypted_path = fs::path(path) += ".x";
         std::ofstream ofile(encrypted_path.c_str(), ofile.binary);
@@ -32,7 +32,7 @@ namespace ns_cryptor {
         std::ifstream ifile(path.c_str(), ifile.binary);
         assert(ifile);
         io::filtering_streambuf<io::input> in;
-        in.push(io::gzip_decompressor()); // !!!
+        in.push(io::gzip_decompressor());
         in.push(ifile);
         fs::path decrypted_path = fs::path(path);
         if (decrypted_path.extension() == ".x") {
