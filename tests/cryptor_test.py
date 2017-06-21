@@ -9,6 +9,7 @@ import shutil
 
 class TestCryptor(object):
     ext = '.x'
+    chunk_size = 256
 
     def test_encrypt_file(self, PATH, tempfile_path):
         encrypted_path = tempfile_path + self.ext
@@ -49,4 +50,15 @@ class TestCryptor(object):
         pass
 
     def test_decrypt_some_targets(self):
+        pass
+
+    def test_wipe_file(self, PATH, tempfile_path):
+        subprocess.check_call(
+            [PATH['cryptor'], '-t', '-w', tempfile_path])
+        with open(tempfile_path, 'rb') as file:
+            for chunk in iter(lambda: file.read(self.chunk_size), b''):
+                for c in chunk:
+                    assert(c == 0)
+
+    def test_wipe_directory(self):
         pass
