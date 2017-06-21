@@ -54,7 +54,7 @@ class TestCryptor(object):
 
     def test_wipe_file(self, PATH, tempfile_path):
         subprocess.check_call(
-            [PATH['cryptor'], '--debug', '-w', tempfile_path])
+            [PATH['cryptor'], '-t', '-w', tempfile_path])
         with open(tempfile_path, 'rb') as file:
             for chunk in iter(lambda: file.read(self.chunk_size), b''):
                 for c in chunk:
