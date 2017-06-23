@@ -4,8 +4,6 @@
 #include <cassert>
 #include <string>
 
-#include <iostream>
-
 namespace ns_cryptor {
     namespace fs = boost::filesystem;
 
