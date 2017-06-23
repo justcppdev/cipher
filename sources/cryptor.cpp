@@ -54,8 +54,13 @@ namespace ns_cryptor {
                 " doesn't exist";
         }
 
-        if (fs::is_regular(path)) wipe_file(path); else
-        if (fs::is_directory(path)) wipe_directory(path); else {
+        if (fs::is_regular(path)) {
+            wipe_file(path);
+
+        } else if (fs::is_directory(path)) {
+            wipe_directory(path);
+
+        } else {
             throw std::string(path.c_str()) +=
                 " has unsupported file type";
         }
