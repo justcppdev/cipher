@@ -4,6 +4,8 @@
 #include <cassert>
 #include <string>
 
+#include <iostream>
+
 namespace ns_cryptor {
     namespace fs = boost::filesystem;
 
@@ -26,5 +28,16 @@ namespace ns_cryptor {
     }
 
     void wipe_directory(fs::path const& path) {
+        assert(fs::exists(path));
+        fs::directory_iterator i(path);
+        fs::directory_iterator e;
+        for(; i != e; ++i) {
+            auto curr_path = i->path();
+            if (fs::is_directory(curr_path)) {
+                wipe_directory(curr_path);
+            } else if (fs::is_regular(curr_path)) {
+                wipe_file(curr_path);
+            }
+        }
     }
 }
