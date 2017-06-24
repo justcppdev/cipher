@@ -1,10 +1,15 @@
 #include "encryptor.hpp"
+#include <boost/filesystem.hpp>
+#include <cassert>
 
 namespace ns_cryptor {
-    std::streamsize Encryptor::read(char const *s, std::streamsize n) {
-        return n;
+    namespace fs = boost::filesystem;
+
+    Encryptor::Encryptor(fs::path const& path): path_(path) {
+        assert(fs::exists(path));
     }
 
-    void Encryptor::write(char const *s, std::streamsize n) {
+    fs::path Encryptor::destination() const {
+        return fs::path(path_) += ".x";
     }
 }

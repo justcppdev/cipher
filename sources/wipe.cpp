@@ -7,26 +7,6 @@
 namespace ns_cryptor {
     namespace fs = boost::filesystem;
 
-    void wipe(fs::path const& path, bool test) {
-        if (!fs::exists(path)) {
-            throw std::string(path.c_str()) +=
-                " doesn't exist";
-        }
-
-        if (fs::is_regular(path)) {
-            wipe_file(path);
-
-        } else if (fs::is_directory(path)) {
-            wipe_directory(path);
-
-        } else {
-            throw std::string(path.c_str()) +=
-                " has unsupported file type";
-        }
-
-        if (test == false) fs::remove_all(path);
-    }
-
     void wipe_file(fs::path const& path) {
         assert(fs::exists(path));
         std::ofstream ofile(path.c_str(), ofile.binary | ofile.in | ofile.ate);
@@ -59,5 +39,25 @@ namespace ns_cryptor {
                 wipe_file(curr_path);
             }
         }
+    }
+
+    void wipe(fs::path const& path, bool test) {
+        if (!fs::exists(path)) {
+            throw std::string(path.c_str()) +=
+                " doesn't exist";
+        }
+
+        if (fs::is_regular(path)) {
+            wipe_file(path);
+
+        } else if (fs::is_directory(path)) {
+            wipe_directory(path);
+
+        } else {
+            throw std::string(path.c_str()) +=
+                " has unsupported file type";
+        }
+
+        if (test == false) fs::remove_all(path);
     }
 }

@@ -2,18 +2,43 @@
 #define ENCRYPTOR_HPP
 #pragma once
 
+#include <boost/filesystem.hpp>
 #include <boost/iostreams/categories.hpp>
+#include <boost/iostreams/operations.hpp>
 #include <ios>
+#include <cstdio>
 
 namespace ns_cryptor {
+    namespace fs = boost::filesystem;
     namespace io = boost::iostreams;
+
     class Encryptor final {
     public:
-        using char_type = char;
-        using category = io::bidirectional_device_tag;
+        Encryptor(fs::path const& path);
+       ~Encryptor() = default;
+        fs::path destination() const;
 
-        std::streamsize read(char const *s, std::streamsize n);
-        void write(char const *s, std::streamsize n);
+        using char_type = char;
+        using category = io::multichar_input_filter_tag;
+
+        template<typename Source>
+        std::streamsize read(Source& src, char* s, std::streamsize n) {
+            char* first = s;
+            char* last  = s + n;
+            int   c;
+
+            while(first != last &&
+                  (c = io::get(src)) != EOF && c != io::WOULD_BLOCK) {
+                *first++ = c ^ 0x01010101;
+            }
+
+            auto result = static_cast<std::streamsize>(first - s);
+            return result == 0 && c != io::WOULD_BLOCK ?
+                -1 : result;
+        }
+
+    private:
+        fs::path path_;
     };
 }
 
