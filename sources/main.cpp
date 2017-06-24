@@ -34,10 +34,6 @@ int main(int argc, char* argv[]) {
             po::value<std::vector<fs::path>>()
             ->value_name("path"), "file or directory")
 
-        ("sync,s",
-            po::value<std::vector<fs::path>>()
-            ->value_name("path"), "file or directory with output directory")
-
         ("output,o",
             po::value<fs::path>(&output_dir)
             ->value_name("path"), "output directory")
