@@ -12,6 +12,26 @@ namespace ns_cryptor {
     namespace fs = boost::filesystem;
     namespace io = boost::iostreams;
 
+    void encrypt(
+        fs::path const& path, fs::path const& output_dir, bool test) {
+        if (!fs::exists(path)) {
+            throw std::string(path.c_str()) +=
+                " doesn't exist";
+        }
+
+        if (fs::is_regular(path)) {
+
+            fs::path dest = fs::path(path) += ".x";
+            encrypt_file(path, dest);
+
+        } else if (fs::is_directory(path)) {
+
+        } else {
+            throw std::string(path.c_str()) +=
+                " has unsupported file type";
+        }
+    }
+
     void encrypt_file(
         fs::path const& path, fs::path const& dest) {
         assert(fs::exists(path));
