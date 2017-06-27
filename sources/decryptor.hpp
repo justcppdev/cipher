@@ -2,21 +2,18 @@
 #define DECRYPTOR_HPP
 #pragma once
 
-#include <boost/filesystem.hpp>
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/operations.hpp>
 #include <ios>
-#include <cstdio>
+#include <string>
 
 namespace ns_cryptor {
-    namespace fs = boost::filesystem;
     namespace io = boost::iostreams;
 
     class Decryptor final {
     public:
-        Decryptor(fs::path const& path);
+        Decryptor(std::string const& password);
        ~Decryptor() = default;
-        fs::path destination() const;
 
         using char_type = char;
         using category = io::multichar_input_filter_tag;
@@ -32,13 +29,14 @@ namespace ns_cryptor {
                 *first++ = c ^ 0x01010101;
             }
 
-            auto result = static_cast<std::streamsize>(first - s);
-            return result == 0 && c != io::WOULD_BLOCK ?
-                -1 : result;
+            auto readed = static_cast<std::streamsize>(first - s);
+            return readed == 0 && c != io::WOULD_BLOCK ?
+                -1 : readed;
         }
 
     private:
-        fs::path path_;
+        std::string aes_key;
+        std::string crc_aes;
     };
 }
 

@@ -12,7 +12,6 @@ namespace ns_cryptor {
     namespace io = boost::iostreams;
 
     void decrypt_file(fs::path const& path) {
-
         assert(fs::exists(path));
         std::ifstream ifile(path.c_str(), ifile.binary);
         if (!ifile) {
@@ -20,17 +19,20 @@ namespace ns_cryptor {
                 " can't be open";
         }
 
-        Decryptor decryptor(path);
-        auto dest = decryptor.destination();
-
+        std::string const passwd = "password";
+        Decryptor decryptor(passwd);
         io::filtering_streambuf<io::input> in;
         in.push(decryptor);
         in.push(ifile);
 
-        std::ofstream ofile(dest.c_str(), ofile.binary);
+        fs::path destination = fs::path(path);
+        if (destination.extension() == ".x") {
+            destination.replace_extension();
+        }
+        std::ofstream ofile(destination.c_str(), ofile.binary | ofile.trunc);
         if (!ofile) {
             throw std::string(path.c_str()) +=
-                " can't be open";
+                " can't be encrypted. Error with a destination device.";
         }
 
         io::copy(in, ofile);
