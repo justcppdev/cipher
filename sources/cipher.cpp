@@ -68,32 +68,32 @@ namespace ns_cryptor {
         aes_gcm_header_t header = {};
         if (1 != RAND_bytes((unsigned char*)&header, 
             sizeof(header) - sizeof(header.gcm_tag))) {
-            throw "unknown error: RAND_bytes";
+            throw "error: RAND_bytes";
         }
 
         if (!ofile.write((char *)&header, std::streamsize(sizeof(header)))) {
-            throw "unknown error: ofile.write";
+            throw "error: ofile.write";
         }
 
         auto ctx = EVP_CIPHER_CTX_new();
         if (!ctx) {
-            throw "unknown error: EVP_CIPHER_CTX_new";
+            throw "error: EVP_CIPHER_CTX_new";
         }
 
         try {
             if (1 != EVP_EncryptInit_ex(
                 ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr)) {
-                throw "unknown error: EVP_EncryptInit_ex";
+                throw "error: EVP_EncryptInit_ex";
             }
 
             if (1 != EVP_CIPHER_CTX_ctrl(
                 ctx, EVP_CTRL_AEAD_SET_IVLEN, sizeof(header.gcm_iv), nullptr)) {
-                throw "unknown error: EVP_CIPHER_CTX_ctrl - EVP_CTRL_AEAD_SET_IVLEN";
+                throw "error: EVP_CIPHER_CTX_ctrl - EVP_CTRL_AEAD_SET_IVLEN";
             }
 
             if (1 != EVP_EncryptInit_ex(
                 ctx, nullptr, nullptr, header.gcm_key, header.gcm_iv)) {
-                throw "unknown error: EVP_EncryptInit_ex";
+                throw "error: EVP_EncryptInit_ex";
             }
 
             unsigned char pt_buffer[1024];
@@ -107,29 +107,29 @@ namespace ns_cryptor {
                 if (pt_len > 0) {
                     if (1 != EVP_EncryptUpdate(
                         ctx, ct_buffer, &ct_len, pt_buffer, pt_len)) {
-                        throw "unknown error: EVP_EncryptUpdate";
+                        throw "error: EVP_EncryptUpdate";
                     }
 
                     if (!ofile.write((char *)ct_buffer, std::streamsize(ct_len))) {
-                        throw "unknown error: ofile.write";
+                        throw "error: ofile.write";
                     }
                 }
 
             } while(ifile);
 
             if (1 != EVP_EncryptFinal_ex(ctx, ct_buffer, &ct_len)) {
-                throw "unknown error: EVP_EncryptFinal_ex";
+                throw "error: EVP_EncryptFinal_ex";
             }
 
             if (1 != EVP_CIPHER_CTX_ctrl(
                 ctx, EVP_CTRL_AEAD_GET_TAG, sizeof(header.gcm_tag), header.gcm_tag)) {
-                throw "unknown error: EVP_CIPHER_CTX_ctrl - EVP_CTRL_AEAD_GET_TAG";
+                throw "error: EVP_CIPHER_CTX_ctrl - EVP_CTRL_AEAD_GET_TAG";
             }
 
             ofile.seekp(sizeof(header) - sizeof(header.gcm_tag), ofile.beg);
             if (!ofile.write((char *)header.gcm_tag,
-                             std::streamsize(sizeof(header.gcm_tag)))) {
-                throw "unknown error: ofile.write";
+                std::streamsize(sizeof(header.gcm_tag)))) {
+                throw "error: ofile.write";
             }
 
             throw (const char*)nullptr;
@@ -171,28 +171,28 @@ namespace ns_cryptor {
         aes_gcm_header_t header = {};
         ifile.read((char *)&header, sizeof(header));
         if (ifile.gcount() != sizeof(header)) {
-            throw "unknown error: ifile.read";
+            throw "error: ifile.read";
         }
 
         auto ctx = EVP_CIPHER_CTX_new();
         if (!ctx) {
-            throw "unknown error: EVP_CIPHER_CTX_new";
+            throw "error: EVP_CIPHER_CTX_new";
         }
 
         try {
             if (1 != EVP_DecryptInit_ex(
                 ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr)) {
-                throw "unknown error: EVP_DecryptInit_ex";
+                throw "error: EVP_DecryptInit_ex";
             }
 
             if (1 != EVP_CIPHER_CTX_ctrl(
                 ctx, EVP_CTRL_AEAD_SET_IVLEN, sizeof(header.gcm_iv), nullptr)) {
-                throw "unknown error: EVP_CIPHER_CTX_ctrl - EVP_CTRL_AEAD_SET_IVLEN";
+                throw "error: EVP_CIPHER_CTX_ctrl - EVP_CTRL_AEAD_SET_IVLEN";
             }
 
             if (1 != EVP_DecryptInit_ex(
                 ctx, nullptr, nullptr, header.gcm_key, header.gcm_iv)) {
-                throw "unknown error: EVP_DecryptInit_ex";
+                throw "error: EVP_DecryptInit_ex";
             }
 
             unsigned char pt_buffer[1024];
@@ -206,12 +206,11 @@ namespace ns_cryptor {
                 if (ct_len > 0) {
                     if (1 != EVP_DecryptUpdate(
                         ctx, pt_buffer, &pt_len, ct_buffer, ct_len)) {
-                        throw "unknown error: EVP_DecryptUpdate";
+                        throw "error: EVP_DecryptUpdate";
                     }
 
                     if (!ofile.write((char *)pt_buffer, std::streamsize(pt_len))) {
-                        throw std::string(destination.c_str()) +=
-                            " : error writing";
+                        throw "error: ofile.write";
                     }
                 }
 
@@ -219,11 +218,11 @@ namespace ns_cryptor {
 
             if (1 != EVP_CIPHER_CTX_ctrl(
                 ctx, EVP_CTRL_AEAD_SET_TAG, sizeof(header.gcm_tag), header.gcm_tag)) {
-                throw "unknown error: EVP_CIPHER_CTX_ctrl - EVP_CTRL_AEAD_SET_TAG";
+                throw "error: EVP_CIPHER_CTX_ctrl - EVP_CTRL_AEAD_SET_TAG";
             }
 
             if (1 != EVP_EncryptFinal_ex(ctx, ct_buffer, &ct_len)) {
-                throw "unknown error: EVP_DecryptFinal_ex";
+                throw "error: EVP_DecryptFinal_ex";
             }
 
             throw (const char*)nullptr;
