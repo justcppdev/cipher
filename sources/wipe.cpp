@@ -1,4 +1,4 @@
-#include "cryptor.hpp"
+#include "wipe.hpp"
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <cassert>
@@ -6,7 +6,6 @@
 
 namespace ns_cryptor {
     namespace fs = boost::filesystem;
-
     void wipe_file(fs::path const& path) {
         assert(fs::exists(path));
         std::ofstream ofile(path.c_str(), ofile.binary | ofile.in | ofile.ate);
@@ -41,7 +40,7 @@ namespace ns_cryptor {
         }
     }
 
-    void wipe(fs::path const& path, bool test) {
+    void wipe(fs::path const& path) {
         if (!fs::exists(path)) {
             throw std::string(path.c_str()) +=
                 " doesn't exist";
@@ -57,7 +56,5 @@ namespace ns_cryptor {
             throw std::string(path.c_str()) +=
                 " has unsupported file type";
         }
-
-        if (test == false) fs::remove_all(path);
     }
 }
