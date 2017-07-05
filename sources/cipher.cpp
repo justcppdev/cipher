@@ -26,7 +26,7 @@ namespace ns_cryptor {
 
             if (fs::is_regular(source) == false) {
                 throw std::string(source.c_str()) +=
-                    " is not regular file";
+                    " is not a file";
             }
 
             if (fs::exists(output_dir) == false) {
@@ -36,7 +36,7 @@ namespace ns_cryptor {
 
             if (fs::is_directory(output_dir) == false) {
                 throw std::string(output_dir.c_str()) +=
-                    " is not directory";
+                    " is not a directory";
             }
         }
     }
