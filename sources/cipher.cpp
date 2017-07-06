@@ -5,15 +5,11 @@
 #include <cassert>
 #include <memory>
 
-#include <iostream>
-#include <openssl/bio.h>
-
 namespace ns_cryptor {
     namespace fs = boost::filesystem;
     namespace {
         struct aes_gcm_header_t {
-            unsigned char gcm_key[256 / 8], gcm_iv [128 / 8];
-            unsigned char gcm_tag[128 / 8];
+            unsigned char gcm_key[256 / 8], gcm_iv[128 / 8], gcm_tag[128 / 8];
         } __attribute__((packed));
 
         void check_params(fs::path const& source,

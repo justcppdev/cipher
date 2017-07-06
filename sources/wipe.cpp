@@ -41,7 +41,7 @@ namespace ns_cryptor {
     }
 
     void wipe(fs::path const& path) {
-        if (!fs::exists(path)) {
+        if (fs::exists(path) == false) {
             throw std::string(path.c_str()) +=
                 " doesn't exist";
         }
