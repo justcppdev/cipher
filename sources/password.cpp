@@ -1,7 +1,22 @@
 #include "password.hpp"
+#include <iostream>
+#include <unistd.h>
+#include <termios.h>
 
 namespace ns_cryptor {
     std::string get_password() {
-        return "password";
+        termios tty;
+        tcgetattr(STDIN_FILENO, &tty);
+        tty.c_lflag &= ~ECHO;
+        tcsetattr(STDIN_FILENO, TCSANOW, &tty);
+
+        std::cout << "password: " << std::flush;
+        std::string password;
+        std::cin >> password;
+        std::cout << std::endl;
+
+        tty.c_lflag |= ECHO;
+        tcsetattr(STDIN_FILENO, TCSANOW, &tty);
+        return password;
     }
 }

@@ -16,10 +16,15 @@ int main(int argc, char* argv[]) {
     namespace po = boost::program_options;
     namespace fs = boost::filesystem;
     fs::path output_dir = fs::current_path();
+    bool test = false;
 
     po::options_description description("Allowed options");
     description.add_options()
         ("help,h", "show this message")
+
+        ("test,t",
+            po::bool_switch(&test)
+            ->default_value(false), "test")
 
         ("encrypt,e",
             po::value<std::vector<fs::path>>()
@@ -58,8 +63,8 @@ int main(int argc, char* argv[]) {
                 " is not directory";
         }
 
-        std::unique_ptr<Cipher> cipher =
-            std::make_unique<Cipher_aes_gcm>(get_password());
+        std::unique_ptr<Cipher> cipher = std::make_unique<Cipher_aes_gcm>(
+            test ? "passwd" : get_password());
 
         if (vm.count("encrypt")) {
             for(auto const& path: vm["encrypt"].as<std::vector<fs::path>>()) {

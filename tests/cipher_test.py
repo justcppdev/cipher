@@ -14,7 +14,7 @@ class TestCipher(object):
         encrypted_path = tempfile_path + self.ext
         try:
             subprocess.check_call(
-                [PATH['cryptor'], '-e', tempfile_path,
+                [PATH['cryptor'], '-t', '-e', tempfile_path,
                  '-o', os.path.dirname(tempfile_path)])
             assert(filecmp.cmp(tempfile_path, encrypted_path, shallow=False)
                    is False)
@@ -27,11 +27,11 @@ class TestCipher(object):
         encrypted_path = tempfile_path + '.origin' + self.ext
         try:
             subprocess.check_call(
-                [PATH['cryptor'], '-e', decrypted_path,
+                [PATH['cryptor'], '-t', '-e', decrypted_path,
                  '-o', os.path.dirname(tempfile_path)])
             os.remove(decrypted_path)
             subprocess.check_call(
-                [PATH['cryptor'], '-d', encrypted_path,
+                [PATH['cryptor'], '-t', '-d', encrypted_path,
                  '-o', os.path.dirname(tempfile_path)])
             assert(filecmp.cmp(tempfile_path, decrypted_path, shallow=False)
                    is True)
