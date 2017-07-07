@@ -64,12 +64,3 @@ def tempdir_path(request):
 
     request.addfinalizer(remove)
     return path
-
-
-def file_was_wiped(path):
-    with open(path, 'rb') as file:
-        for chunk in iter(lambda: file.read(256), b''):
-            for c in chunk:
-                if c != 0:
-                    return False
-    return True

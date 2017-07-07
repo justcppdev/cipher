@@ -67,10 +67,13 @@ namespace ns_cryptor {
 
     bool is_wiped(fs::path const& path) {
         REQUIRE(fs::exists(path));
+
         if (fs::is_regular(path)) {
             return is_wiped_file(path);
+
         } else if (fs::is_directory(path)) {
             return is_wiped_directory(path);
+
         } else {
             return false;
         }
