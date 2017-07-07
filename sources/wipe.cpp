@@ -18,7 +18,7 @@ namespace ns_cryptor {
         ofile.seekp(0, std::ios_base::beg);
         auto off = std::streamoff(pos);
         while (off > 0) {
-            ofile << std::ofstream::char_type(0);
+            ofile << char(0);
             --off;
         }
         ofile.close();

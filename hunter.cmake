@@ -16,3 +16,7 @@ hunter_add_package(OpenSSL)
 find_package(OpenSSL REQUIRED)
 include_directories("${OPENSSL_INCLUDE_DIR}")
 set(OPENSSL "${OPENSSL_LIBRARIES}")
+
+hunter_add_package(Catch)
+find_package(Catch CONFIG REQUIRED)
+set(CATCH Catch::Catch)
