@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace ns_cryptor {
+namespace ns_cipher {
     std::string get_password();
 }
 

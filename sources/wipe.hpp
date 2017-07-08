@@ -4,7 +4,7 @@
 
 #include <boost/filesystem.hpp>
 
-namespace ns_cryptor {
+namespace ns_cipher {
     namespace fs = boost::filesystem;
     void wipe(fs::path const& path);
 }

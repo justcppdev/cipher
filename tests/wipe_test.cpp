@@ -4,7 +4,7 @@
 #include <boost/filesystem.hpp>
 #include <memory>
 
-namespace ns_cryptor {
+namespace ns_cipher {
     namespace fs = boost::filesystem;
 
     TEST_CASE("wipe", "[wipe]") {

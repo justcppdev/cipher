@@ -5,7 +5,7 @@
 #include <boost/filesystem.hpp>
 #include <string>
 
-namespace ns_cryptor {
+namespace ns_cipher {
     namespace fs = boost::filesystem;
     class Cipher {
     public:

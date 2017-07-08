@@ -6,7 +6,8 @@ HunterGate(
     SHA1 "b16c19e28aefbb83b02aa90bacf8350fc45ef7d0"
 )
 
-project(cryptor)
+project(cipher)
+
 include("config.cmake")
 include("hunter.cmake")
 include(CTest)

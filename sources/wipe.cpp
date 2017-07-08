@@ -4,7 +4,7 @@
 #include <cassert>
 #include <string>
 
-namespace ns_cryptor {
+namespace ns_cipher {
     namespace fs = boost::filesystem;
     void wipe_file(fs::path const& path) {
         assert(fs::exists(path));

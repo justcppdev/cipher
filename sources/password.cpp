@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <termios.h>
 
-namespace ns_cryptor {
+namespace ns_cipher {
     std::string get_password() {
         termios tty;
         tcgetattr(STDIN_FILENO, &tty);

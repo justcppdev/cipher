@@ -12,6 +12,6 @@ def get_cmake_config_type():
 @pytest.fixture(scope='session', autouse=True)
 def PATH():
     return {
-        'cryptor':
-            '_builds/default' + get_cmake_config_type() + '/sources/cryptor'
+        'cipher':
+            '_builds/default' + get_cmake_config_type() + '/sources/cipher'
     }

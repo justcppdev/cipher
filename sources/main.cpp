@@ -9,10 +9,10 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-    using ns_cryptor::Cipher;
-    using ns_cryptor::Cipher_aes_gcm;
-    using ns_cryptor::get_password;
-    using ns_cryptor::wipe;
+    using ns_cipher::Cipher;
+    using ns_cipher::Cipher_aes_gcm;
+    using ns_cipher::get_password;
+    using ns_cipher::wipe;
     namespace po = boost::program_options;
     namespace fs = boost::filesystem;
     fs::path output_dir = fs::current_path();

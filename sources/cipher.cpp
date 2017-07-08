@@ -5,7 +5,7 @@
 #include <cassert>
 #include <memory>
 
-namespace ns_cryptor {
+namespace ns_cipher {
     namespace fs = boost::filesystem;
     namespace {
         struct aes_gcm_header_t {
