@@ -53,16 +53,6 @@ int main(int argc, char* argv[]) {
             return 0;
         }
 
-        if (fs::exists(output_dir) == false) {
-            throw std::string(output_dir.c_str()) +=
-                " doesn't exist";
-        }
-
-        if (fs::is_directory(output_dir) == false) {
-            throw std::string(output_dir.c_str()) +=
-                " is not directory";
-        }
-
         std::unique_ptr<Cipher> cipher = std::make_unique<Cipher_aes_gcm>(
             test ? "passwd" : get_password());
 

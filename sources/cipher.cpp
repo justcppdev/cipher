@@ -5,6 +5,8 @@
 #include <cassert>
 #include <memory>
 
+#include <iostream>
+
 namespace ns_cipher {
     namespace fs = boost::filesystem;
     namespace {
@@ -20,19 +22,11 @@ namespace ns_cipher {
                     " doesn't exist";
             }
 
-            if (fs::is_regular(source) == false) {
-                throw std::string(source.c_str()) +=
-                    " is not a file";
-            }
-
-            if (fs::exists(output_dir) == false) {
-                throw std::string(output_dir.c_str()) +=
-                    " doesn't exist";
-            }
-
-            if (fs::is_directory(output_dir) == false) {
-                throw std::string(output_dir.c_str()) +=
-                    " is not a directory";
+            if (fs::exists(output_dir)) {
+                if (fs::is_directory(output_dir) == false) {
+                    throw std::string(output_dir.c_str()) +=
+                        " is not a directory";
+                }
             }
         }
     }
@@ -43,10 +37,15 @@ namespace ns_cipher {
 
     Cipher_aes_gcm::~Cipher_aes_gcm() = default;
 
-    void Cipher_aes_gcm::encrypt(fs::path const& source,
-                                 fs::path const& output_dir) {
+    void Cipher_aes_gcm::encrypt_file(fs::path const& source,
+                                      fs::path const& output_dir) {
 
-        check_params(source, output_dir);
+        if (fs::exists(output_dir) == false) {
+            if (!fs::create_directories(output_dir)) {
+                throw std::string(output_dir.c_str()) +=
+                    " can't be created";
+            }
+        }
 
         std::ifstream ifile(source.c_str(), ifile.binary);
         if (!ifile) {
@@ -54,7 +53,7 @@ namespace ns_cipher {
                 " can't be open";
         }
 
-        auto destination = fs::path(source) += ".x";
+        auto destination = (fs::path(output_dir) /= source.filename()) += ".x";
         std::ofstream ofile(destination.c_str(), ofile.binary | ofile.trunc);
         if (!ofile) {
             throw std::string(destination.c_str()) +=
@@ -142,10 +141,15 @@ namespace ns_cipher {
         }
     }
 
-    void Cipher_aes_gcm::decrypt(fs::path const& source,
-                                 fs::path const& output_dir) {
+    void Cipher_aes_gcm::decrypt_file(fs::path const& source,
+                                      fs::path const& output_dir) {
 
-        check_params(source, output_dir);
+        if (fs::exists(output_dir) == false) {
+            if (!fs::create_directories(output_dir)) {
+                throw std::string(output_dir.c_str()) +=
+                    " can't be created";
+            }
+        }
 
         std::ifstream ifile(source.c_str(), ifile.binary);
         if (!ifile) {
@@ -153,7 +157,7 @@ namespace ns_cipher {
                 " can't be open";
         }
 
-        auto destination = fs::path(source);
+        fs::path destination = fs::path(output_dir) /= source.filename();
         if (destination.extension() == ".x") {
             destination.replace_extension();
         }
@@ -232,6 +236,73 @@ namespace ns_cipher {
                 fs::remove(destination);
                 throw;
             }
+        }
+    }
+
+    void Cipher_aes_gcm::encrypt_directory(fs::path const& source,
+                                           fs::path const& output_dir) {
+
+        auto prefix_size = source.parent_path().size() + 1;
+        fs::recursive_directory_iterator i(source);
+        fs::recursive_directory_iterator e;
+        for(; i != e; ++i) {
+            auto curr_path = i->path();
+            if (fs::is_regular(curr_path)) {
+                auto dest_dir = (fs::path(output_dir) /= (
+                    std::string(curr_path.c_str()).substr(
+                        prefix_size))).parent_path();
+                encrypt_file(curr_path, dest_dir);
+            }
+        }
+    }
+
+    void Cipher_aes_gcm::decrypt_directory(fs::path const& source,
+                                           fs::path const& output_dir) {
+        auto prefix_size = source.parent_path().size() + 1;
+        fs::recursive_directory_iterator i(source);
+        fs::recursive_directory_iterator e;
+        for(; i != e; ++i) {
+            auto curr_path = i->path();
+            if (fs::is_regular(curr_path)) {
+                auto dest_dir = (fs::path(output_dir) /= (
+                    std::string(curr_path.c_str()).substr(
+                        prefix_size))).parent_path();
+                decrypt_file(curr_path, dest_dir);
+            }
+        }
+    }
+
+    void Cipher_aes_gcm::encrypt(fs::path const& source,
+                                 fs::path const& output_dir) {
+
+        check_params(source, output_dir);
+
+        if (fs::is_regular(source)) {
+            encrypt_file(source, output_dir);
+
+        } else if (fs::is_directory(source)) {
+            encrypt_directory(source, output_dir);
+
+        } else {
+            throw std::string(source.c_str()) +=
+                " has unsupported file type";
+        }
+    }
+
+    void Cipher_aes_gcm::decrypt(fs::path const& source,
+                                 fs::path const& output_dir) {
+
+        check_params(source, output_dir);
+
+        if (fs::is_regular(source)) {
+            decrypt_file(source, output_dir);
+
+        } else if (fs::is_directory(source)) {
+            decrypt_directory(source, output_dir);
+
+        } else {
+            throw std::string(source.c_str()) +=
+                " has unsupported file type";
         }
     }
 }

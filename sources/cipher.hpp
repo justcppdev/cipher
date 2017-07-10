@@ -20,9 +20,14 @@ namespace ns_cipher {
         Cipher_aes_gcm(std::string const& password);
        ~Cipher_aes_gcm();
 
-        void encrypt(fs::path const& source, fs::path const& output_dir) override;
-        void decrypt(fs::path const& source, fs::path const& output_dir) override;
+        void encrypt          (fs::path const& source, fs::path const& output_dir) override;
+        void decrypt          (fs::path const& source, fs::path const& output_dir) override;
     private:
+        void encrypt_file     (fs::path const& source, fs::path const& output_dir);
+        void decrypt_file     (fs::path const& source, fs::path const& output_dir);
+        void encrypt_directory(fs::path const& source, fs::path const& output_dir);
+        void decrypt_directory(fs::path const& source, fs::path const& output_dir);
+
         std::string const& password_;
     };
 }
