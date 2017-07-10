@@ -68,7 +68,7 @@ def tempdir_path(request):
 
 
 def dirs_are_eq(dir1, dir2):
-    def diff_files(dcmp):
+    def _are_eq(dcmp):
         if dcmp.left_only or dcmp.right_only or dcmp.diff_files:
             return True
 
@@ -79,10 +79,10 @@ def dirs_are_eq(dir1, dir2):
                 return True
 
         for sub_dcmp in dcmp.subdirs.values():
-            if diff_files(sub_dcmp) is True:
+            if _are_eq(sub_dcmp) is True:
                 return True
 
         return False
 
     dcmp = filecmp.dircmp(dir1, dir2)
-    return diff_files(dcmp) is False
+    return _are_eq(dcmp) is False
