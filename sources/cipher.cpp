@@ -5,8 +5,6 @@
 #include <cassert>
 #include <memory>
 
-#include <iostream>
-
 namespace ns_cipher {
     namespace fs = boost::filesystem;
     namespace {
