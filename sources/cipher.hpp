@@ -3,6 +3,7 @@
 #pragma once
 
 #include <boost/filesystem.hpp>
+#include <openssl/blowfish.h>
 #include <string>
 
 namespace ns_cipher {
@@ -28,7 +29,7 @@ namespace ns_cipher {
         void encrypt_directory(fs::path const& source, fs::path const& output_dir);
         void decrypt_directory(fs::path const& source, fs::path const& output_dir);
 
-        std::string const& password_;
+        BF_KEY bf_key_;
     };
 }
 

@@ -2,10 +2,9 @@
 #include <boost/filesystem.hpp>
 #include <openssl/rand.h>
 #include <openssl/evp.h>
+#include <openssl/blowfish.h>
 #include <cassert>
 #include <memory>
-
-#include <iostream>
 
 namespace ns_cipher {
     namespace fs = boost::filesystem;
@@ -31,8 +30,9 @@ namespace ns_cipher {
         }
     }
 
-    Cipher_aes_gcm::Cipher_aes_gcm(std::string const& password)
-        : password_(password) {
+    Cipher_aes_gcm::Cipher_aes_gcm(std::string const& password) {
+        unsigned char iv[8] = {};
+        BF_set_key(&bf_key_, password.size(), (unsigned char *)password.c_str());
     }
 
     Cipher_aes_gcm::~Cipher_aes_gcm() = default;
@@ -61,13 +61,13 @@ namespace ns_cipher {
         }
 
         aes_gcm_header_t header = {};
+        if (!ofile.write((char *)&header, std::streamsize(sizeof(header)))) {
+            throw "error: ofile.write";
+        }
+
         if (1 != RAND_bytes((unsigned char*)&header, 
             sizeof(header) - sizeof(header.gcm_tag))) {
             throw "error: RAND_bytes";
-        }
-
-        if (!ofile.write((char *)&header, std::streamsize(sizeof(header)))) {
-            throw "error: ofile.write";
         }
 
         auto ctx = EVP_CIPHER_CTX_new();
@@ -121,9 +121,14 @@ namespace ns_cipher {
                 throw "error: EVP_CIPHER_CTX_ctrl - EVP_CTRL_AEAD_GET_TAG";
             }
 
-            ofile.seekp(sizeof(header) - sizeof(header.gcm_tag), ofile.beg);
-            if (!ofile.write((char *)header.gcm_tag,
-                std::streamsize(sizeof(header.gcm_tag)))) {
+            aes_gcm_header_t blowfish_header = {};
+            unsigned char iv[8] = {};
+            BF_cbc_encrypt((unsigned char*)&header, (unsigned char*)&blowfish_header,
+                long(sizeof(aes_gcm_header_t)), &bf_key_, iv, BF_ENCRYPT);
+
+            ofile.seekp(0, ofile.beg);
+            if (!ofile.write(
+                (char *)&blowfish_header, std::streamsize(sizeof(blowfish_header)))) {
                 throw "error: ofile.write";
             }
 
@@ -168,11 +173,16 @@ namespace ns_cipher {
                 " can't be encrypted. Error with a destination file.";
         }
 
-        aes_gcm_header_t header = {};
-        ifile.read((char *)&header, sizeof(header));
-        if (ifile.gcount() != sizeof(header)) {
+        aes_gcm_header_t blowfish_header = {};
+        ifile.read((char *)&blowfish_header, sizeof(blowfish_header));
+        if (ifile.gcount() != sizeof(blowfish_header)) {
             throw "error: ifile.read";
         }
+
+        aes_gcm_header_t header = {};
+        unsigned char iv[8] = {};
+        BF_cbc_encrypt((unsigned char*)&blowfish_header, (unsigned char*)&header,
+            long(sizeof(aes_gcm_header_t)), &bf_key_, iv, BF_DECRYPT);
 
         auto ctx = EVP_CIPHER_CTX_new();
         if (!ctx) {
