@@ -5,6 +5,8 @@
 #include <cassert>
 #include <memory>
 
+#include <iostream>
+
 namespace ns_cipher {
     namespace fs = boost::filesystem;
     namespace {
@@ -240,11 +242,15 @@ namespace ns_cipher {
     void Cipher_aes_gcm::encrypt_directory(fs::path const& source,
                                            fs::path const& output_dir) {
 
-        auto prefix_size = source.parent_path().size() + 1;
+        auto prefix_size = source.has_parent_path() ?
+            source.parent_path().size() + 1 : 0;
+
         fs::recursive_directory_iterator i(source);
         fs::recursive_directory_iterator e;
         for(; i != e; ++i) {
             auto curr_path = i->path();
+            if (".DS_Store" == curr_path.filename()) continue;
+
             if (fs::is_regular(curr_path)) {
                 auto dest_dir = (fs::path(output_dir) /= (
                     std::string(curr_path.c_str()).substr(
@@ -256,11 +262,16 @@ namespace ns_cipher {
 
     void Cipher_aes_gcm::decrypt_directory(fs::path const& source,
                                            fs::path const& output_dir) {
-        auto prefix_size = source.parent_path().size() + 1;
+
+        auto prefix_size = source.has_parent_path() ?
+            source.parent_path().size() + 1 : 0;
+
         fs::recursive_directory_iterator i(source);
         fs::recursive_directory_iterator e;
         for(; i != e; ++i) {
             auto curr_path = i->path();
+            if (".DS_Store" == curr_path.filename()) continue;
+
             if (fs::is_regular(curr_path)) {
                 auto dest_dir = (fs::path(output_dir) /= (
                     std::string(curr_path.c_str()).substr(
