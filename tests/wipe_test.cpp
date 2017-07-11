@@ -10,8 +10,7 @@ namespace ns_cipher {
     TEST_CASE("wipe", "[wipe]") {
         auto deleter = [](fs::path *p) {
             if (p != nullptr) {
-                if (fs::exists(*p))
-                    fs::remove_all(*p);
+                if (fs::exists(*p)) fs::remove_all(*p);
                 delete p;
             }
         };
