@@ -12,12 +12,6 @@ include("config.cmake")
 include("hunter.cmake")
 include(CTest)
 
-set(HEADERS cipher.hpp password.hpp wipe.hpp)
-
-string(REGEX REPLACE "([^;]+)" "${CMAKE_SOURCE_DIR}/sources/\\1"
-    HEADERS
- "${HEADERS}")
-
 include_directories("include")
 add_subdirectory("sources")
 
