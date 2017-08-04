@@ -37,7 +37,7 @@ namespace ns_cipher {
     }
 
     void Cipher_aes_gcm::encrypt_file(fs::path const& source,
-                                      fs::path const& output_dir) {
+                                      fs::path const& output_dir) const {
 
         if (!fs::exists(output_dir)) {
             if (!fs::create_directories(output_dir)) {
@@ -146,7 +146,7 @@ namespace ns_cipher {
     }
 
     void Cipher_aes_gcm::decrypt_file(fs::path const& source,
-                                      fs::path const& output_dir) {
+                                      fs::path const& output_dir) const {
 
         if (!fs::exists(output_dir)) {
             if (!fs::create_directories(output_dir)) {
@@ -249,7 +249,7 @@ namespace ns_cipher {
     }
 
     void Cipher_aes_gcm::encrypt_directory(fs::path const& source,
-                                           fs::path const& output_dir) {
+                                           fs::path const& output_dir) const {
 
         auto prefix_size = source.has_parent_path() ?
             source.parent_path().size() + 1 : 0;
@@ -270,7 +270,7 @@ namespace ns_cipher {
     }
 
     void Cipher_aes_gcm::decrypt_directory(fs::path const& source,
-                                           fs::path const& output_dir) {
+                                           fs::path const& output_dir) const {
 
         auto prefix_size = source.has_parent_path() ?
             source.parent_path().size() + 1 : 0;
@@ -291,7 +291,7 @@ namespace ns_cipher {
     }
 
     void Cipher_aes_gcm::encrypt(fs::path const& source,
-                                 fs::path const& output_dir) {
+                                 fs::path const& output_dir) const {
 
         check_params(source, output_dir);
 
@@ -308,7 +308,7 @@ namespace ns_cipher {
     }
 
     void Cipher_aes_gcm::decrypt(fs::path const& source,
-                                 fs::path const& output_dir) {
+                                 fs::path const& output_dir) const {
 
         check_params(source, output_dir);
 
