@@ -18,8 +18,7 @@ namespace ns_cipher {
 
     class Cipher_aes_gcm final: public Cipher {
     public:
-        Cipher_aes_gcm(std::string const& password);
-       ~Cipher_aes_gcm();
+        explicit Cipher_aes_gcm(std::string const& password);
 
         void encrypt          (fs::path const& source, fs::path const& output_dir) override;
         void decrypt          (fs::path const& source, fs::path const& output_dir) override;

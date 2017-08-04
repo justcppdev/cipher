@@ -1,7 +1,7 @@
 #include "password.hpp"
 #include <iostream>
-#include <unistd.h>
 #include <termios.h>
+#include <unistd.h>
 
 namespace ns_cipher {
     std::string get_password() {

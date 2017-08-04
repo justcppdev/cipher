@@ -3,10 +3,10 @@
 #include "wipe.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include <vector>
-#include <string>
-#include <memory>
 #include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 
 int main(int argc, char* argv[]) {
     using ns_cipher::Cipher;
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
         po::store(po::parse_command_line(argc, argv, description), vm);
         po::notify(vm);
 
-        if (vm.count("help")) {
+        if (vm.count("help") != 0u) {
             std::cout << description << std::endl;
             return 0;
         }
@@ -56,19 +56,19 @@ int main(int argc, char* argv[]) {
         std::unique_ptr<Cipher> cipher = std::make_unique<Cipher_aes_gcm>(
             test ? "passwd" : get_password());
 
-        if (vm.count("encrypt")) {
+        if (vm.count("encrypt") != 0u) {
             for(auto const& path: vm["encrypt"].as<std::vector<fs::path>>()) {
                 cipher->encrypt(path, output_dir);
             }
         }
 
-        if (vm.count("decrypt")) {
+        if (vm.count("decrypt") != 0u) {
             for(auto const& path: vm["decrypt"].as<std::vector<fs::path>>()) {
                 cipher->decrypt(path, output_dir);
             }
         }
 
-        if (vm.count("wipe")) {
+        if (vm.count("wipe") != 0u) {
             for(auto const& path: vm["wipe"].as<std::vector<fs::path>>()) {
                 wipe(path);
                 fs::remove_all(path);

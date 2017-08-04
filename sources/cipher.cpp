@@ -17,62 +17,60 @@ namespace ns_cipher {
         void check_params(fs::path const& source,
                           fs::path const& output_dir) {
 
-            if (fs::exists(source) == false) {
-                throw std::string(source.c_str()) +=
-                    " doesn't exist";
+            if (!fs::exists(source)) {
+                throw std::move(std::string(source.c_str()) +=
+                    " doesn't exist");
             }
 
             if (fs::exists(output_dir)) {
-                if (fs::is_directory(output_dir) == false) {
-                    throw std::string(output_dir.c_str()) +=
-                        " is not a directory";
+                if (!fs::is_directory(output_dir)) {
+                    throw std::move(std::string(output_dir.c_str()) +=
+                        " is not a directory");
                 }
             }
         }
     }
 
-    Cipher_aes_gcm::Cipher_aes_gcm(std::string const& password) {
+    Cipher_aes_gcm::Cipher_aes_gcm(std::string const& password): bf_key_{} {
         unsigned char iv[8] = {};
-        BF_set_key(&bf_key_, password.size(), (unsigned char *)password.c_str());
+        BF_set_key(&bf_key_, password.size(), reinterpret_cast<unsigned char const*>(password.c_str()));
     }
-
-    Cipher_aes_gcm::~Cipher_aes_gcm() = default;
 
     void Cipher_aes_gcm::encrypt_file(fs::path const& source,
                                       fs::path const& output_dir) {
 
-        if (fs::exists(output_dir) == false) {
+        if (!fs::exists(output_dir)) {
             if (!fs::create_directories(output_dir)) {
-                throw std::string(output_dir.c_str()) +=
-                    " can't be created";
+                throw std::move(std::string(output_dir.c_str()) +=
+                    " can't be created");
             }
         }
 
         std::ifstream ifile(source.c_str(), ifile.binary);
         if (!ifile) {
-            throw std::string(source.c_str()) +=
-                " can't be open";
+            throw std::move(std::string(source.c_str()) +=
+                " can't be open");
         }
 
         auto destination = (fs::path(output_dir) /= source.filename()) += ".x";
         std::ofstream ofile(destination.c_str(), ofile.binary | ofile.trunc);
         if (!ofile) {
-            throw std::string(destination.c_str()) +=
-                " can't be encrypted. Error with a destination file.";
+            throw std::move(std::string(destination.c_str()) +=
+                " can't be encrypted. Error with a destination file.");
         }
 
         aes_gcm_header_t header = {};
-        if (!ofile.write((char *)&header, std::streamsize(sizeof(header)))) {
+        if (!ofile.write(reinterpret_cast<char *>(&header), std::streamsize(sizeof(header)))) {
             throw "error: ofile.write";
         }
 
-        if (1 != RAND_bytes((unsigned char*)&header, 
+        if (1 != RAND_bytes(reinterpret_cast<unsigned char*>(&header), 
             sizeof(header) - sizeof(header.gcm_tag))) {
             throw "error: RAND_bytes";
         }
 
         auto ctx = EVP_CIPHER_CTX_new();
-        if (!ctx) {
+        if (nullptr == ctx) {
             throw "error: EVP_CIPHER_CTX_new";
         }
 
@@ -98,7 +96,7 @@ namespace ns_cipher {
             int ct_len = 0;
 
             do {
-                ifile.read((char *)pt_buffer, sizeof(pt_buffer));
+                ifile.read(reinterpret_cast<char *>(pt_buffer), sizeof(pt_buffer));
                 pt_len = int(ifile.gcount());
                 if (pt_len > 0) {
                     if (1 != EVP_EncryptUpdate(
@@ -106,7 +104,7 @@ namespace ns_cipher {
                         throw "error: EVP_EncryptUpdate";
                     }
 
-                    if (!ofile.write((char *)ct_buffer, std::streamsize(ct_len))) {
+                    if (!ofile.write(reinterpret_cast<char *>(ct_buffer), std::streamsize(ct_len))) {
                         throw "error: ofile.write";
                     }
                 }
@@ -124,16 +122,16 @@ namespace ns_cipher {
 
             aes_gcm_header_t blowfish_header = {};
             unsigned char iv[8] = {};
-            BF_cbc_encrypt((unsigned char*)&header, (unsigned char*)&blowfish_header,
+            BF_cbc_encrypt(reinterpret_cast<unsigned char*>(&header), reinterpret_cast<unsigned char*>(&blowfish_header),
                 long(sizeof(aes_gcm_header_t)), &bf_key_, iv, BF_ENCRYPT);
 
             ofile.seekp(0, ofile.beg);
             if (!ofile.write(
-                (char *)&blowfish_header, std::streamsize(sizeof(blowfish_header)))) {
+                reinterpret_cast<char *>(&blowfish_header), std::streamsize(sizeof(blowfish_header)))) {
                 throw "error: ofile.write";
             }
 
-            throw (const char*)nullptr;
+            throw static_cast<const char*>(nullptr);
         } catch (const char *error_msg) {
 
             EVP_CIPHER_CTX_free(ctx);
@@ -150,17 +148,17 @@ namespace ns_cipher {
     void Cipher_aes_gcm::decrypt_file(fs::path const& source,
                                       fs::path const& output_dir) {
 
-        if (fs::exists(output_dir) == false) {
+        if (!fs::exists(output_dir)) {
             if (!fs::create_directories(output_dir)) {
-                throw std::string(output_dir.c_str()) +=
-                    " can't be created";
+                throw std::move(std::string(output_dir.c_str()) +=
+                    " can't be created");
             }
         }
 
         std::ifstream ifile(source.c_str(), ifile.binary);
         if (!ifile) {
-            throw std::string(source.c_str()) +=
-                " can't be open";
+            throw std::move(std::string(source.c_str()) +=
+                " can't be open");
         }
 
         fs::path destination = fs::path(output_dir) /= source.filename();
@@ -170,23 +168,23 @@ namespace ns_cipher {
 
         std::ofstream ofile(destination.c_str(), ofile.binary | ofile.trunc);
         if (!ofile) {
-            throw std::string(destination.c_str()) +=
-                " can't be encrypted. Error with a destination file.";
+            throw std::move(std::string(destination.c_str()) +=
+                " can't be encrypted. Error with a destination file.");
         }
 
         aes_gcm_header_t blowfish_header = {};
-        ifile.read((char *)&blowfish_header, sizeof(blowfish_header));
+        ifile.read(reinterpret_cast<char *>(&blowfish_header), sizeof(blowfish_header));
         if (ifile.gcount() != sizeof(blowfish_header)) {
             throw "error: ifile.read";
         }
 
         aes_gcm_header_t header = {};
         unsigned char iv[8] = {};
-        BF_cbc_encrypt((unsigned char*)&blowfish_header, (unsigned char*)&header,
-            long(sizeof(aes_gcm_header_t)), &bf_key_, iv, BF_DECRYPT);
+        BF_cbc_encrypt(reinterpret_cast<unsigned char const*>(&blowfish_header), reinterpret_cast<unsigned char*>(&header),
+            sizeof(aes_gcm_header_t), &bf_key_, iv, BF_DECRYPT);
 
         auto ctx = EVP_CIPHER_CTX_new();
-        if (!ctx) {
+        if (nullptr == ctx) {
             throw "error: EVP_CIPHER_CTX_new";
         }
 
@@ -212,7 +210,7 @@ namespace ns_cipher {
             int ct_len = 0;
 
             do {
-                ifile.read((char *)ct_buffer, sizeof(ct_buffer));
+                ifile.read(reinterpret_cast<char *>(ct_buffer), sizeof(ct_buffer));
                 ct_len = int(ifile.gcount());
                 if (ct_len > 0) {
                     if (1 != EVP_DecryptUpdate(
@@ -220,7 +218,7 @@ namespace ns_cipher {
                         throw "error: EVP_DecryptUpdate";
                     }
 
-                    if (!ofile.write((char *)pt_buffer, std::streamsize(pt_len))) {
+                    if (!ofile.write(reinterpret_cast<char *>(pt_buffer), std::streamsize(pt_len))) {
                         throw "error: ofile.write";
                     }
                 }
@@ -236,7 +234,7 @@ namespace ns_cipher {
                 throw "error: EVP_DecryptFinal_ex";
             }
 
-            throw (const char*)nullptr;
+            throw static_cast<const char*>(nullptr);
         } catch (const char *error_msg) {
 
             EVP_CIPHER_CTX_free(ctx);
@@ -304,8 +302,8 @@ namespace ns_cipher {
             encrypt_directory(source, output_dir);
 
         } else {
-            throw std::string(source.c_str()) +=
-                " has unsupported file type";
+            throw std::move(std::string(source.c_str()) +=
+                " has unsupported file type");
         }
     }
 
@@ -321,8 +319,8 @@ namespace ns_cipher {
             decrypt_directory(source, output_dir);
 
         } else {
-            throw std::string(source.c_str()) +=
-                " has unsupported file type";
+            throw std::move(std::string(source.c_str()) +=
+                " has unsupported file type");
         }
     }
 }

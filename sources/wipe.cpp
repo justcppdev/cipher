@@ -1,7 +1,7 @@
 #include "wipe.hpp"
 #include <boost/filesystem.hpp>
-#include <fstream>
 #include <cassert>
+#include <fstream>
 #include <string>
 
 namespace ns_cipher {
@@ -10,8 +10,8 @@ namespace ns_cipher {
         assert(fs::exists(path));
         std::ofstream ofile(path.c_str(), ofile.binary | ofile.in | ofile.ate);
         if (!ofile) {
-            throw std::string(path.c_str()) +=
-                " can't be open";
+            throw std::move(std::string(path.c_str()) +=
+                " can't be open");
         }
         auto pos = ofile.tellp();
         assert(pos != -1);
@@ -41,9 +41,9 @@ namespace ns_cipher {
     }
 
     void wipe(fs::path const& path) {
-        if (fs::exists(path) == false) {
-            throw std::string(path.c_str()) +=
-                " doesn't exist";
+        if (!fs::exists(path)) {
+            throw std::move(std::string(path.c_str()) +=
+                " doesn't exist");
         }
 
         if (fs::is_regular(path)) {
@@ -53,8 +53,8 @@ namespace ns_cipher {
             wipe_directory(path);
 
         } else {
-            throw std::string(path.c_str()) +=
-                " has unsupported file type";
+            throw std::move(std::string(path.c_str()) +=
+                " has unsupported file type");
         }
     }
 }
